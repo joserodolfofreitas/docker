@@ -3,10 +3,9 @@ FROM java:8u45-jdk
 RUN apt-get update && apt-get install -y wget git curl zip && rm -rf /var/lib/apt/lists/*
 
 ENV JENKINS_HOME /var/jenkins_home
-ENV JENKINS_SLAVE_AGENT_PORT 50000
 
 # Jenkins is ran with user `jenkins`, uid = 1000
-# If you bind mount a volume from host/volume from a data container, 
+# If you bind mount a volume from host/vloume from a data container, 
 # ensure you use same uid
 RUN useradd -d "$JENKINS_HOME" -u 1000 -m -s /bin/bash jenkins
 
@@ -34,6 +33,11 @@ RUN curl -fL http://mirrors.jenkins-ci.org/war-stable/$JENKINS_VERSION/jenkins.w
 
 ENV JENKINS_UC https://updates.jenkins-ci.org
 RUN chown -R jenkins "$JENKINS_HOME" /usr/share/jenkins/ref
+
+# Android config
+RUN curl -3L https://raw.githubusercontent.com/troii/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin --install=tools,platform-tools,build-tools-23.0.5,build-tools-19.1.0,build-tools-19.0.3,android-L,android-20,android-19,android-21,sysimg-19,extra-android-support,extra-android-m2repository --dir=/opt --accept="android-sdk-license-5be876d5|android-sdk-preview-license-52d11cd2"
+RUN rm /opt/android-sdk*linux.tgz
+ENV ["ANDROID_HOME", "/opt/android-sdk-linux"]
 
 # for main web interface:
 EXPOSE 8080
